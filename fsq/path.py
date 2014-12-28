@@ -18,7 +18,9 @@ from . import constants as _c, FSQPathError
 ####### INTERNAL MODULE FUNCTIONS AND ATTRIBUTES #######
 _ILLEGAL_NAMES=('.', '..', )
 
-def _path(queue, extra=None, root=_c.FSQ_ROOT):
+def _path(queue, extra=None, root=None):
+    if root is None:
+        root = _c.FSQ_ROOT
     args = [coerce_unicode(root, _c.FSQ_CHARSET), valid_name(queue)]
     if extra is not None:
         args.append(valid_name(extra))
@@ -78,6 +80,8 @@ def item(p_queue, queue_id, host=None):
     '''Construct a path to a queued item'''
     return os.path.join(_path(p_queue, _c.FSQ_QUEUE), valid_name(queue_id))
 
-def trigger(p_queue, trigger=_c.FSQ_TRIGGER):
+def trigger(p_queue, trigger=None):
     '''Construct a path to a trigger (FIFO)'''
+    if trigger is None:
+        trigger = _c.FSQ_TRIGGER
     return _path(p_queue, trigger)

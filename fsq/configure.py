@@ -104,8 +104,10 @@ def is_down(queue, host=None):
         raise FSQConfigError(e.errno, wrap_io_os_err(e))
     return True
 
-def trigger(queue, user=None, group=None, mode=None, trigger=_c.FSQ_TRIGGER):
+def trigger(queue, user=None, group=None, mode=None, trigger=None):
     '''Installs a trigger for the specified queue.'''
+    if trigger is None:
+        trigger = _c.FSQ_TRIGGER
     # default our owners and mode
     user, group, mode = _dflts(user, group, mode)
     trigger_path = fsq_path.trigger(queue, trigger=trigger)
@@ -132,9 +134,11 @@ def trigger(queue, user=None, group=None, mode=None, trigger=_c.FSQ_TRIGGER):
             _cleanup(trigger_path, e)
         _raise(trigger_path, e)
 
-def untrigger(queue, trigger=_c.FSQ_TRIGGER):
+def untrigger(queue, trigger=None):
     '''Uninstalls the trigger for the specified queue -- if a queue has no
        trigger, this function is a no-op.'''
+    if trigger is None:
+        trigger = _c.FSQ_TRIGGER
     trigger_path = fsq_path.trigger(queue, trigger=trigger)
     _queue_ok(os.path.dirname(trigger_path))
     try:
@@ -143,9 +147,11 @@ def untrigger(queue, trigger=_c.FSQ_TRIGGER):
         if e.errno != errno.ENOENT:
             raise FSQConfigError(e.errno, wrap_io_os_err(e))
 
-def trigger_pull(queue, ignore_listener=False, trigger=_c.FSQ_TRIGGER):
+def trigger_pull(queue, ignore_listener=False, trigger=None):
     '''Write a non-blocking byte to a trigger fifo, to cause a triggered
        scan'''
+    if trigger is None:
+        trigger = _c.FSQ_TRIGGER
     fd = None
     trigger_path = fsq_path.trigger(queue, trigger=trigger)
     _queue_ok(os.path.dirname(trigger_path))
