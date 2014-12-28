@@ -31,6 +31,22 @@ def _lock(fd, lock=False):
             raise FSQCannotLockError(e.errno, u'cannot lock')
         raise e
 
+def _fchown(fd, uid, gid):
+    # call os.fchown, translating OverflowError to an OSError,
+    # so we can build an FSQConfigError from an OverflowError.
+    try:
+        os.fchown(fd, uid, gid)
+    except OverflowError, e:
+        raise OSError(errno.EINVAL, str(e))
+
+def _chown(path, uid, gid):
+    # call os.chown, translating OverflowError to an OSError,
+    # so we can build an FSQConfigError from an OverflowError.
+    try:
+        os.chown(path, uid, gid)
+    except OverflowError, e:
+        raise OSError(errno.EINVAL, str(e))
+
 ####### EXPOSED METHODS #######
 def coerce_unicode(s, charset):
     if isinstance(s, unicode):

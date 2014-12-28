@@ -15,7 +15,7 @@ import shutil
 
 from . import constants as _c, path as fsq_path, FSQInstallError, FSQError,\
               down, trigger, down_host, host_trigger
-from .internal import uid_gid, wrap_io_os_err
+from .internal import uid_gid, wrap_io_os_err, _fchown
 
 ####### INTERNAL MODULE FUNCTIONS AND ATTRIBUTES #######
 def _cleanup(clean_dir):
@@ -35,7 +35,7 @@ def _instdir(trg_dir, mode, uid, gid):
             os.fchmod(fd, mode)
             # os.chown is non-atomic, prefer open/fchown as a best practice
             if -1 != uid or -1 != gid:
-                os.fchown(fd, uid, gid)
+                _fchown(fd, uid, gid)
         finally:
             os.close(fd)
     except (OSError, IOError, ), e:
@@ -106,7 +106,7 @@ def install(trg_queue, is_down=False, is_triggered=False, user=None,
             # always fchmod here as mkdtemp is different than normal mkdir
             os.fchmod(fd, mode)
             if -1 != uid or -1 != gid:
-                os.fchown(fd, uid, gid)
+                _fchown(fd, uid, gid)
         finally:
             os.close(fd)
 
@@ -206,7 +206,7 @@ def install_host(trg_queue, *hosts, **kwargs):
                     # mkdir
                     os.fchmod(fd, mode)
                     if -1 != uid or -1 != gid:
-                        os.fchown(fd, uid, gid)
+                        _fchown(fd, uid, gid)
                 finally:
                     os.close(fd)
 

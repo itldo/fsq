@@ -16,7 +16,7 @@ import errno
 
 from . import constants as _c, path as fsq_path, FSQConfigError,\
               FSQTriggerPullError, FSQError
-from .internal import uid_gid, wrap_io_os_err
+from .internal import uid_gid, wrap_io_os_err, _fchown, _chown
 
 ####### INTERNAL MODULE FUNCTIONS AND ATTRIBUTES #######
 # try to delete a file, and raise a wrapped error
@@ -67,7 +67,7 @@ def down(queue, user=None, group=None, mode=None, host=None) :
                 raise e
             fd = os.open(down_path, os.O_CREAT|os.O_WRONLY, mode)
         if user is not None or group is not None:
-            os.fchown(fd, *uid_gid(user, group, fd=fd))
+            _fchown(fd, *uid_gid(user, group, fd=fd))
         if not created:
             os.fchmod(fd, mode)
     except (OSError, IOError, ), e:
@@ -127,7 +127,7 @@ def trigger(queue, user=None, group=None, mode=None, trigger=None):
         # flush, and intercepts triggers meant to go elsewheres
         os.chmod(trigger_path, mode)
         if user is not None or group is not None:
-            os.chown(trigger_path, *uid_gid(user, group, path=trigger_path))
+            _chown(trigger_path, *uid_gid(user, group, path=trigger_path))
     except (OSError, IOError, ), e:
         # only rm if we created and failed, otherwise leave it and fail
         if created:
