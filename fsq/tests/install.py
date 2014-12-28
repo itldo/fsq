@@ -128,7 +128,9 @@ class TestInstallUninstall(FSQTestCase):
         queue = normalize()
         _c.FSQ_ROOT = NOROOT
         self.assertRaises(FSQInstallError, install, queue)
-        self.assertRaises(FSQInstallError, uninstall, queue)
+        # The first step of an uninstall is down()
+        # which throws an FSQConfigError.
+        self.assertRaises(FSQConfigError, uninstall, queue)
 
 
     def test_invalnames(self):

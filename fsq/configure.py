@@ -64,7 +64,7 @@ def down(queue, user=None, group=None, mode=None, host=None) :
             created = True
         except (OSError, IOError, ), e:
             if e.errno != errno.EEXIST:
-                raise e
+                raise FSQConfigError(e.errno, wrap_io_os_err(e))
             fd = os.open(down_path, os.O_CREAT|os.O_WRONLY, mode)
         if user is not None or group is not None:
             _fchown(fd, *uid_gid(user, group, fd=fd))

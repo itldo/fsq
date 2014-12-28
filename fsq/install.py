@@ -148,7 +148,11 @@ def uninstall(trg_queue, item_user=None, item_group=None, item_mode=None):
     try:
         down(trg_queue, user=item_user, group=item_group,
              mode=(_c.FSQ_ITEM_MODE if item_mode is None else item_mode))
+    # allow FSQErrors from lower levels (notably FSQConfigError from down() )
+    # to propagate. Convert the rest to FSQInstallErrors.
     except FSQError, e:
+        raise e
+    except (OSError, IOError, ), e:
         raise FSQInstallError(e.errno, wrap_io_os_err(e))
     tmp_full, tmp_queue = _tmp_trg(trg_queue, _c.FSQ_ROOT)
     _remove_dir(fsq_path.base(trg_queue), tmp_full, trg_queue)
